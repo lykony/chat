@@ -9,6 +9,11 @@ const pool = mysql.createPool({
 });
 
 const app = express();
+app.use(express.static('static'))
+
+app.get('/', (req, res) => {
+    return res.end('/static/index.html')
+})
 
 app.get('/messages', async (req, res) => {
     try {
@@ -17,7 +22,7 @@ app.get('/messages', async (req, res) => {
         connection.release();
         let html = '<html><body><ul>';
         rows.forEach(f => html += `<li>${f.content}</li>`);
-        html += '</ul></body><input /></html>';
+        html += '</ul></body></html>';
         res.send(html)
     } catch(err) {
         connection.release();
