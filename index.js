@@ -10,24 +10,37 @@ const pool = mysql.createPool({
 
 const app = express();
 
-app.get('/messages', (req, res) => getData(res, 'message'));
-app.get('/users', (req, res) => getData(res, 'user'));
-app.get('/dialogs', (req, res) => getData(res, 'dialog'));
-
-async function getData(res, table) {
+app.get('/messages', async (req, res) => {
     try {
         const connection = await pool.getConnection()
-        const [rows, fields] = await connection.execute(`SELECT * FROM ${table}`);
+        const [rows, fields] = await connection.execute(`SELECT * FROM message`);
         connection.release();
         let html = '<html><body><ul>';
         rows.forEach(f => html += `<li>${f.content}</li>`);
+        html += '</ul></body><input /></html>';
+        res.send(html)
+    } catch(err) {
+        connection.release();
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+    
+});
+
+app.get('/users', async (req, res) => {
+    try {
+        const connection = await pool.getConnection()
+        const [rows, fields] = await connection.execute(`SELECT * FROM user`);
+        connection.release();
+        let html = '<html><body><ul>';
+        rows.forEach(f => html += `<li>${f.login}</li>`);
         html += '</ul></body></html>';
         res.send(html)
     } catch(err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
     }
-}
+});
 
 app.listen(3000)
 
